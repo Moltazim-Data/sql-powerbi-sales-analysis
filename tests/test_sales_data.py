@@ -8,9 +8,10 @@ def test_sales_data_has_unique_orders_and_valid_values():
     with DATA.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     assert len(rows) >= 30
-    order_ids = [row["order_id"] for row in rows]
+    assert {"OrderID", "OrderDate", "Country", "Category", "Product", "Sales", "Quantity"} <= set(rows[0])
+    order_ids = [row["OrderID"] for row in rows]
     assert len(order_ids) == len(set(order_ids))
     for row in rows:
-        assert int(row["quantity"]) > 0
-        assert float(row["unit_price_eur"]) > 0
-        assert 0 <= float(row["discount_pct"]) < 1
+        assert float(row["Sales"]) >= 0
+        assert int(row["Quantity"]) > 0
+        assert len(row["OrderDate"]) == 10
