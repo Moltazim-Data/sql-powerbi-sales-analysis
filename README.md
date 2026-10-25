@@ -1,38 +1,47 @@
 # SQL + Power BI Sales Analysis
 
-A portfolio project space for demonstrating a reproducible sales analytics workflow using SQL for data preparation and KPI analysis, then Power BI for communicating results.
+This project analyzes a sample sales dataset using SQL (DuckDB) and documents how to build an interactive Power BI report from the same source data.
 
-> **Status note:** This repository currently has only a short project description. It should not be treated as a completed analysis until the SQL scripts, source data or data-source instructions, dashboard artifact/screenshots, and validated findings are committed.
+## Current assets
 
-## Intended workflow
+- `data/sales.csv` — sample order-level dataset with order date, country, city, category, product, sales amount, and quantity.
+- `sql/sales_analysis.sql` — SQL queries for KPI summary, monthly trend, category performance, and country performance.
+- `tests/test_sales_data.py` — basic source-data validation.
+- `powerbi/` — planned location for DAX measures, report screenshots, and build guide; add these artifacts after creating and validating the report.
 
-1. Document the source dataset, grain, fields, and any licensing or attribution requirements.
-2. Profile the raw data and define data-quality checks.
-3. Use SQL to calculate sales, order volume, product/category performance, and time trends.
-4. Define KPI formulas and denominators clearly; distinguish sales from profit and orders from line items.
-5. Build a Power BI report with a data model, measures, useful filters, and readable visuals.
-6. Validate dashboard totals against SQL outputs and publish screenshots plus a short findings report.
+## Run the SQL analysis
 
-## Recommended repository structure
+Python 3.10+ recommended.
 
-```text
-sql-powerbi-sales-analysis/
-├── data/                 # Small permitted sample, or documented download steps
-├── sql/                  # Reproducible queries in execution order
-├── powerbi/               # DAX measures, build guide, preview/screenshots
-├── reports/               # Validated findings and recommendations
-├── docs/                  # Data dictionary and KPI definitions
-└── README.md
+```bash
+python -m pip install -r requirements.txt
+python - <<'PY'
+import duckdb
+con = duckdb.connect()
+con.execute(open("sql/sales_analysis.sql", encoding="utf-8").read())
+print(con.sql("SELECT COUNT(*) AS rows, SUM(sales_amount) AS sales_amount FROM sales").df())
+PY
 ```
 
-## Completion checklist
+Run commands from the repository root. The `Sales` field is treated as the supplied sales amount; do **not** multiply it by quantity again unless the source definition confirms that it is a unit price.
 
-- [ ] Dataset source and license/attribution documented
-- [ ] SQL scripts run from a clean setup
-- [ ] KPI definitions and null/cancellation handling documented
-- [ ] Power BI dashboard screenshot or preview included
-- [ ] SQL totals reconciled to dashboard values
-- [ ] Findings supported by actual query outputs
-- [ ] Setup and reproduction steps tested
+## Run tests
 
-Do not add invented metrics or claim a native `.pbix`, live refresh, or completed dashboard until the corresponding artifact exists and has been tested.
+```bash
+python -m pytest -q
+```
+
+GitHub Actions runs the data checks on pushes and pull requests.
+
+## Power BI build checklist
+
+- [ ] Import `data/sales.csv` and confirm data types.
+- [ ] Define sales amount, order count, and average sales per order consistently.
+- [ ] Build monthly trend, category performance, and country performance visuals.
+- [ ] Validate dashboard totals against the SQL queries.
+- [ ] Commit a readable dashboard screenshot and DAX measures.
+- [ ] Add a brief insight report based on actual query results.
+
+## Data and scope note
+
+Treat this dataset as a practice sample until its source, license, and metric definitions are documented. The repository currently contains SQL analysis and validation scaffolding; it does not claim a completed native Power BI `.pbix` or a deployed dashboard.
